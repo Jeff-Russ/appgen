@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 require('./lib/jr_lib').globalize();
+// childproc.execSync("cd "+__dirname+"; test -f package.json || npm init -f") // init if needed
 require('./lib/appgen_lib').globalize();
 
 var main = function() {
@@ -29,19 +30,20 @@ var main = function() {
   }
 
   var if_output = " 1> /dev/null 2>&1 && echo true || echo false;";
+  var true_false = " && echo true || echo false;";
 
   var run_after_we_have_to_and_from = {
     sys_user: "id -F || id -un || whoami || git config user.name || ''",
     git_email: "git config user.email || '',",
     author: "git config user.name || id -F || id -un || whoami || ''",
-    to_dir_existed: 'test -d "' + info.to_dir + '" && echo true',
+    to_dir_existed: 'test -d "' + info.to_dir + '"' + true_false,
     to_dir: 'mkdir -p "' + info.to_dir + '"; echo `cd ' + info.to_dir + '; pwd`',
     from_dir: 'test -d "' + info.from_dir + '" && echo `cd " + info.from_dir + "; pwd`',
-    to_dir_unempty: 'test "$(ls -A "' + info.to_dir + '")" && echo true',
-    to_dir_has_git: 'test -d "' + info.to_dir + '"/.git && echo true',
+    to_dir_unempty: 'test "$(ls -A "' + info.to_dir + '")"' + true_false,
+    to_dir_has_git: 'test -d "' + info.to_dir + '"/.git' + true_false,
     to_dir_has_json: 'ls "' + info.from_dir + '"/package.json ' + if_output,
     to_dir_readme: 'ls "' + info.to_dir + '" | grep -i readme',
-    from_dir_exists: 'test -d "' + info.from_dir + '" && echo true',
+    from_dir_exists: 'test -d "' + info.from_dir + '"' + true_false,
     from_dir_config: 'ls "' + info.from_dir + '" | grep "' + info.conf_file_part + '"'
   };
 
