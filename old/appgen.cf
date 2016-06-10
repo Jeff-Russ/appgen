@@ -1,0 +1,125 @@
+#!/usr/bin/env coffee
+
+require('./lib/jr_lib').globalize()
+# shSnc "cd #{__dirname}; test -f package.json || npm init -f" # init if needed
+# safeReq 'shelljs/global', 'npm install shelljs'
+clArgs = getCLArgs process.argv
+
+main = () ->
+
+  info = 
+    caller_dir: process.cwd()
+    def_from_dir: "#{__dirname}/appgen-templates/default"
+    conf_file_part: 'appgen-config'
+
+  if clArgs[0] == 0
+    info.to_dir = info.caller_dir
+    info.from_dir = info.def_from_dir
+  else if clArgs[0] == 1 
+    info.to_dir = clArgs[1]
+    info.from_dir = info.def_from_dir
+  else if clArgs[0] == 2
+    info.to_dir = clArgs[1]
+    info.from_dir = clArgs[2]
+  else
+    console.log "Incorrect number of arguments"
+    console.log "Goodbye"
+    process.exit(1)
+
+  `var if_output = " 1> /dev/null 2>&1 && echo true || echo false;";`
+  run_after_we_have_to_and_from =
+    sys_user: 'id -F || id -un || whoami || git config user.name || \'\''
+    git_email: 'git config user.email || \'\''
+    author: 'git config user.name || id -F || id -un || whoami || \'\''
+    to_dir_existed: "test -d \"#{info.to_dir}\" && echo true" # MIGHT NOT NEED THIS
+    to_dir: "mkdir -p \"#{info.to_dir}\"; echo `cd #{info.to_dir}; pwd`"
+    from_dir: "test -d \"#{info.from_dir}\" && echo `cd #{info.from_dir}; pwd`"
+    to_dir_unempty: "test \"$(ls -A \"#{info.to_dir}\")\" && echo true"
+    to_dir_has_git: "test -d \"#{info.to_dir}\"/.git && echo true"
+    to_dir_has_json: "ls \"#{info.from_dir}\"/package.json #{if_output}"
+    to_dir_readme: "ls \"#{info.to_dir}\" | grep -i readme"
+    from_dir_exists: "test -d \"#{info.from_dir}\" && echo true"
+    from_dir_config: "ls \"#{info.from_dir}\" | grep \"#{info.conf_file_part}\""
+
+  spelunker run_after_we_have_to_and_from, info
+
+  if info.to_dir_has_git
+    git_info = getHostRepoUser info.to_dir
+    if (git_info != false)
+      info.app_name = git_info[1]
+      info.author = git_info[2]
+      info.url = "https://#{git_info[0]}/#{info.author}/#{info.app_name}"
+  else
+    info.app_name = info.to_dir.substring 1+info.to_dir.lastIndexOf '/'
+    if info.author.indexOf(' ') >= 0
+      info.author = rmWhite(info.author).toLowerCase()
+    info.url = "https://github.com/#{info.author}/#{info.app_name}"
+
+  `var generic_readme, make_readme = false;`
+  generic_readme = "# #{info.app_name}\n[Git Repository Home](#{info.url})"
+
+
+  # determine if we need to make/write a readme file
+  if /\S/.test(info.to_dir_readme) # if ls found some readme file
+    if ( getFileContents(info.to_dir_readme) == false) # and it's empty
+      shSnc 'rm "'+ info.to_dir_readme + '"' # cuz it's empty
+      make_readme = true
+    else 
+      make_readme = false # so we don't write over some readme file
+  else
+    info.to_dir_readme = "#{info.to_dir}/#{README.md}"
+    make_readme = true # there is no readme that could be overwritten, so true
+
+  if (make_readme && (from_dir_exists == true))
+    # we still might need to make one if there is one in from_dir
+    info.to_dir_readme = shCap "ls \"#{info.from_dir}\" | grep -i readme"
+    if ( getFileContents(info.to_dir_readme) != false)
+      make_readme = false # because copying the files will do the trick
+
+  if make_readme
+    safelySetFileContent info.to_dir_readme, generic_readme
+
+  `var clone_result, run_config_result` # useful for debugging
+  clone_result = safelyCloneDir info.from_dir, info.to_dir
+
+  if /\S/.test(info.from_dir_config) # if ls found some config file
+    if hasSubstr(info.from_dir_config, "node")
+      safelySetFileContent "\"#{info.to_dir}\"/package.json", packageJsonStempl();
+    run_config_result = shSnc info.from_dir_config
+
+  return
+#main
+
+
+##### string templates ########################################################
+
+packageJsonStempl = (info) ->
+  json_stempl = """
+  {
+    "name": "#{info.app_name}",
+    "version": "0.0.1",
+    "description": "",
+    "author": "#{info.author} <#{info.git_email}>",
+      "contributors": [{
+      "name": "#{info.sys_user}",
+      "email": "#{info.git_email}"
+    }],
+    "main": "app.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "#{info.url}"
+    },
+    "private": "true",
+    "license": "MIT"
+  }
+  """
+  return json_stempl
+
+
+##### start execution #########################################################
+
+main()
+
