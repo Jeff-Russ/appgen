@@ -2,7 +2,7 @@
 
 [Git Repository Home](http://github.com/Jeff-Russ/appgen)
 
-appgen is a command line utility that kickstarts the process of setting up a new application project directory by collecting information, running scripts and cloning from a customizable assortment of templates. appgen is not tied down to any one framework or API but it's original design it for Node.js projects.  
+appgen is a command line utility that kickstarts the process of setting up a new application project directory by collecting information, running scripts and cloning from a customizable assortment of templates. appgen is not tied down to any one framework or API but it's original designed it for Node.js projects.  
 
 appgen is inspired by the idea of bringing the concept of Rails generators (with vastly expanded options) to Node.js.  
 
