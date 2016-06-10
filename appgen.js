@@ -1,16 +1,17 @@
 #!/usr/bin/env node
-console.log("test");
-require('./lib/jr_lib').globalize();
 
-var clArgs = getCLArgs(process.argv);
+require('./lib/jr_lib').globalize();
+require('./lib/appgen_lib').globalize();
 
 var main = function() {
 
   var info = {
     caller_dir: process.cwd(),
-    def_from_dir: __dirname + "/appgen-templates/default",
+    def_from_dir: __dirname + "/templates/default-node",
     conf_file_part: 'appgen-config'
   };
+
+  var clArgs = getCLArgs(process.argv);
 
   if (clArgs[0] === 0) {
     info.to_dir = info.caller_dir;
@@ -22,8 +23,8 @@ var main = function() {
     info.to_dir = clArgs[1];
     info.from_dir = clArgs[2];
   } else {
-    console.log("Incorrect number of arguments");
-    console.log("Goodbye");
+    lOut("Incorrect number of arguments");
+    lOut("Goodbye");
     process.exit(1);
   }
 
@@ -46,52 +47,9 @@ var main = function() {
 
   spelunker(run_after_we_have_to_and_from, info);
 
-  if (info.to_dir_has_git) {
-    git_info = getHostRepoUser(info.to_dir);
-    if (git_info !== false) {
-      info.app_name = git_info[1];
-      info.author = git_info[2];
-      info.url = "https://" + git_info[0] + "/" + info.author + "/" + info.app_name;
-    }
-  } else {
-    info.app_name = info.to_dir.substring(1 + info.to_dir.lastIndexOf('/'));
-    if (info.author.indexOf(' ') >= 0) {
-      info.author = rmWhite(info.author).toLowerCase();
-    }
-    info.url = "https://github.com/" + info.author + "/" + info.app_name;
-  }
+  // mineForGitInfo(info);
+  
+  // makeReadme(info);
+}
 
-  var generic_readme = "# " + info.app_name + "\n[Git Repository Home](" + info.url + ")";
-
-  if (/\S/.test(info.to_dir_readme)) {
-    if (getFileContents(info.to_dir_readme) === false) {
-      shSnc('rm "' + info.to_dir_readme + '"');
-      var make_readme = true;
-    } else {
-      var make_readme = false;
-    }
-  } else {
-    info.to_dir_readme = info.to_dir + "/" + README.md;
-    var make_readme = true;
-  }
-  if (make_readme && (from_dir_exists === true)) {
-    info.to_dir_readme = shCap('ls "' + info.from_dir + '" | grep -i readme');
-    if (getFileContents(info.to_dir_readme) !== false) {
-      make_readme = false;
-    }
-  }
-  if (make_readme) {
-    safelySetFileContent(info.to_dir_readme, generic_readme);
-  }
-  var run_config_result;
-  var clone_result = safelyCloneDir(info.from_dir, info.to_dir);
-  if (/\S/.test(info.from_dir_config)) {
-    if (hasSubstr(info.from_dir_config, "node")) {
-      safelySetFileContent('"' + info.to_dir + '"/package.json', packageJsonStempl());
-    }
-    var run_config_result = shSnc(info.from_dir_config);
-  }
-};
-
-
-// main();
+main();
