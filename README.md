@@ -6,7 +6,7 @@ duco is a command line utility that kickstarts the process of setting up a new a
 
 duco is inspired by the idea of bringing the concept of Rails generators (with vastly expanded options) to Node.js.  
 
-## APPGEN IS STILL IN DEVELOPMENT 
+## DUCO IS STILL IN DEVELOPMENT 
 but it's nearing the point of having a usable build. I don't recommend running it at this time but you can certainly have a look a the source!  
 
 
