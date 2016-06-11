@@ -1,8 +1,8 @@
 #!/bin/sh
-# node-appgen configuration file
+# duco configuration file for node
 
 
-function run_appgen_install=(
+function run_duco_install=(
   cd $TO_PATH
   pipe "Installing Node Packages";
   npm install --save express

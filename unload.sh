@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# appgen unload.sh
+# duco unload.sh
 
 SRC_DIR=$(cd "$(dirname ${BASH_SOURCE})" && pwd)
-SRC_PATH="$SRC_DIR"/appgen.js
+SRC_PATH="$SRC_DIR"/duco.js
 echo "==================================="
 
 echo "making ""$SRC_PATH"" only callable directly"
 
-BRC_STR="alias appgen=""\"${SRC_PATH}\""
+BRC_STR="alias duco=""\"${SRC_PATH}\""
 echo
 echo "removing ""$BRC_STR"
 echo " from ""$HOME"/.bashrc
 echo "a backup of ~/.bashrc will be made: ~/.bashrc.bak"
-sed -i.bak '/alias appgen=/d' "$HOME"/.bashrc
+sed -i.bak '/alias duco=/d' "$HOME"/.bashrc
 bash
 echo
 echo "Done."

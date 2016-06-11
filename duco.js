@@ -2,12 +2,12 @@
 
 require('./lib/jr_lib').globalize();
 // childproc.execSync("cd "+__dirname+"; test -f package.json || npm init -f") // init if needed
-require('./lib/appgen_lib').globalize();
+require('./lib/duco_lib').globalize();
 
 var main = function() {
 
   var def_from_dir = __dirname+"/templates/default-node", 
-      conf_file_part = 'appgen-config', old_news,
+      conf_file_part = 'duco-config', old_news,
       info = { caller_dir: process.cwd() };
 
   var argv = getCLArgs(process.argv);
