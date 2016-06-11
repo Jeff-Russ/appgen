@@ -1,5 +1,11 @@
 #!/usr/bin/env node
-
+/*
+================================================================================
+ duco.js  :   part of 'duco', a project configurator
+ Created: 3 June 2016 11:46:40am
+ Author:  Jeff-Russ     https://github.com/Jeff-Russ
+================================================================================
+*/
 require('./lib/jr_lib').globalize();
 // childproc.execSync("cd "+__dirname+"; test -f package.json || npm init -f") // init if needed
 require('./lib/duco_lib').globalize();

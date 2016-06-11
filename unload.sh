@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# duco unload.sh
+
+#==============================================================================
+#  unload.sh  :   part of 'duco', a project configurator
+#  Created: 3 June 2016 11:46:40am
+#  Author:  Jeff-Russ     https://github.com/Jeff-Russ
+#==============================================================================
 
 SRC_DIR=$(cd "$(dirname ${BASH_SOURCE})" && pwd)
 SRC_PATH="$SRC_DIR"/duco.js
